@@ -36,9 +36,9 @@ public class ReservationService {
     public Reservation saveReservation(Reservation reservation, List<Seat> seats) {
         /** Check if seats are already taken*/
         //TOD Use seatRepository.findAllOfShow
-        List<Reservation> reservations=reservationRepository.findAllByShowId(reservation.getShowId());
+        List<Reservation> reservations=reservationRepository.findAllByShowId(reservation.getId());
         for(Reservation res : reservations) {
-            List<Seat> seatList=seatRepository.findAllByResId(res.getResId());
+            List<Seat> seatList=seatRepository.findAllById(res.getId());
             for(Seat reserved : seatList) {
                 if(seats.stream().anyMatch(selected -> reserved.getNumber()==selected.getNumber())) {
                     return null;
@@ -52,7 +52,7 @@ public class ReservationService {
         Reservation result=reservationRepository.save(reservation);
         /** Store Seats */
         seats.stream().forEach(seat -> {
-            seat.setResId(result.getResId());
+            seat.setId(result.getId());
             seatRepository.save(seat);
         });
         return result;
@@ -63,26 +63,26 @@ public class ReservationService {
 
     }
 
-    public List<Reservation> getAllReservationsOfShow(long showId) {
+    public List<Reservation> getAllReservationsOfShow(int showId) {
         return reservationRepository.findAllByShowId(showId);
     }
 
     public List<Seat> getAllSeatsOfReservation(Long resId) {
-        return seatRepository.findAllByResId(resId);
+        return seatRepository.findAllById(resId);
     }
 
-    public List<Seat> getAllSeatsOfShow(Long showId) {
+    public List<Seat> getAllSeatsOfShow(Integer showId) {
         return seatRepository.findSeatsOfShow(showId);
     }
 
-    public Optional<Reservation> getReservationById(Long resId) {
+    public Optional<Reservation> getReservationById(Integer resId) {
         return reservationRepository.findById(resId);
     }
 
 
     public void deleteAll() {
         List<Reservation> reservations=reservationRepository.findAll();
-        reservations.forEach(reservation -> seatRepository.deleteAllByResId(reservation.getResId()));
+        reservations.forEach(reservation -> seatRepository.deleteAllById(reservation.getId()));
         reservationRepository.deleteAll();
     }
 
@@ -101,7 +101,7 @@ public class ReservationService {
      * Return if seatList is available for show
      */
     //TODO REPLACE WITH SQL STATEMENT
-    public boolean areSeatsAvailable(long showId, List<Seat> seatList) {
+    public boolean areSeatsAvailable(int showId, List<Seat> seatList) {
        /* List<Reservation> reservations= reservationRepository.findAllByShowId(showId);
         for(Reservation res: reservations){
             List<Seat> takenSeats=seatRepository.findAllByResId(res.getResId());
@@ -124,12 +124,12 @@ public class ReservationService {
     /**
      * Returns amount of deleted reservations
      */
-    public long deleteReservationsOfShows(List<Long> showIds) {
-        return reservationRepository.deleteAllByShowIdIn(showIds);
+    public long deleteReservationsOfShows(List<Integer> showIds) {
+        return reservationRepository.deleteAllByIdIn(showIds);
     }
 
-    public Optional<Reservation> getReservationInfoOfUser(Long userId, Long resId) {
-        return reservationRepository.findByResIdAndUserId(resId, userId);
+    public Optional<Reservation> getReservationInfoOfUser(Long userId, Integer resId) {
+        return reservationRepository.findByIdAndUserId(resId, userId);
     }
 
     public static class ReservationInfo {

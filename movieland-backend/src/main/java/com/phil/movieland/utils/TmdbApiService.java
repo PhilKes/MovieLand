@@ -38,7 +38,7 @@ public class TmdbApiService {
     /**
      * Additional backdrops stored in memory
      */
-    private static HashMap<Long, String> backdrops=new HashMap<>();
+    private static HashMap<Integer, String> backdrops=new HashMap<>();
 
     private static HashMap<Long, String> trailers=new HashMap<>();
 
@@ -75,7 +75,7 @@ public class TmdbApiService {
         return tmdbApi.getMovies().getNowPlayingMovies("en", 0, "US").getResults().subList(0, 10);
     }
 
-    public String getBackdrop(Long movId) {
+    public String getBackdrop(Integer movId) {
         if(backdrops.containsKey(movId)) {
             return backdrops.get(movId);
         }

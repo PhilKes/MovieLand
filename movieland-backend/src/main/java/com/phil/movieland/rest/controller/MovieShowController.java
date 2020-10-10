@@ -53,22 +53,22 @@ public class MovieShowController {
             @RequestParam(value="date", required=true) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) Date date) {
         log.info("Query for " + date);
         List<MovieShow> shows=movieShowService.getShowsForDate(date,false);
-        Map<Long,List<MovieShow>> showMap=shows.stream().collect(groupingBy(MovieShow::getMovId));
+        Map<Integer,List<MovieShow>> showMap=shows.stream().collect(groupingBy(MovieShow::getId));
         List<Movie> movies= movieService.queryMoviesByIds(new ArrayList<>(showMap.keySet()));
         List<MovieShowInfo> showInfos=new ArrayList<>();
         movies.forEach(movie->{
             MovieShowInfo info= new MovieShowInfo()
-                    .setMovId(movie.getMovId())
+                    .setMovId(movie.getId())
                     .setName(movie.getName())
                     .setPosterUrl(movie.getPosterUrl())
                     .setDate(movie.getDate())
-                    .setShows(showMap.get(movie.getMovId()));
+                    .setShows(showMap.get(movie.getId()));
             showInfos.add(info);
         });
         return showInfos;
     }
     public class MovieShowInfo{
-        Long movId;
+        Integer movId;
         String name;
         @DateTimeFormat(iso= DateTimeFormat.ISO.DATE_TIME)
         Date date;
@@ -79,11 +79,11 @@ public class MovieShowController {
         public MovieShowInfo() {
         }
 
-        public Long getMovId() {
+        public Integer getMovId() {
             return movId;
         }
 
-        public MovieShowInfo setMovId(Long movId) {
+        public MovieShowInfo setMovId(Integer movId) {
             this.movId=movId;
             return this;
         }
@@ -152,7 +152,7 @@ public class MovieShowController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MovieShow> getShow(@PathVariable Long id) {
+    public ResponseEntity<MovieShow> getShow(@PathVariable Integer id) {
         Optional<MovieShow> show=movieShowService.queryShow(id);
         return show.map(response -> ResponseEntity.ok().body(response))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -161,9 +161,9 @@ public class MovieShowController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<MovieShow> postMovieShow(@RequestBody MovieShow show) throws URISyntaxException {
-        log.info("Post Show( MovId:" + show.getMovId() + " Date: " + show.getDate());
+        log.info("Post Show( MovId:" + show.getId() + " Date: " + show.getDate());
         MovieShow result=movieShowService.saveShow(show);
-        return ResponseEntity.created(new URI("/api/show/" + result.getShowId()))
+        return ResponseEntity.created(new URI("/api/show/" + result.getId()))
                 .body(result);
     }
 

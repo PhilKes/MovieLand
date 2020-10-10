@@ -10,14 +10,16 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface MovieShowRepository extends CrudRepository<MovieShow,Long> {
+    Optional<MovieShow> findById(int movid);
     List<MovieShow> findAllByOrderByDate();
-    List<MovieShow> findAllByMovId(long movid);
+    List<MovieShow> findAllById(int movid);
 
-    List<MovieShow> findAllByMovIdAndDateBetweenOrderByDate(long movid, Date dateStart, Date dateEnd);
+    List<MovieShow> findAllByIdAndDateBetweenOrderByDate(int movid, Date dateStart, Date dateEnd);
     List<MovieShow> findAllByDateBetween(Date dateStart,Date dateEnd);
 
-    Long deleteAllByShowIdIn(List<Long> showIds);
+    Long deleteAllByIdIn(List<Integer> showIds);
 }

@@ -75,11 +75,11 @@ public class MovieController {
     }
 
     @GetMapping("/ids")
-    public Map<Long, Movie> getMoviesList(
-            @RequestParam(value="ids") List<Long> movIds) {
+    public Map<Integer, Movie> getMoviesList(
+            @RequestParam(value="ids") List<Integer> movIds) {
         List<Movie> movies=movieService.queryMoviesByIds(movIds);
-        Map<Long, Movie> moviesMap=movies.stream()
-                .collect(Collectors.toMap(Movie::getMovId, Function.identity()));
+        Map<Integer, Movie> moviesMap=movies.stream()
+                .collect(Collectors.toMap(Movie::getId, Function.identity()));
         log.info("Movies by ids:", Utils.printMap(moviesMap));
         return moviesMap;
     }
@@ -105,10 +105,10 @@ public class MovieController {
     }
 
     @GetMapping("/tmdb/images")
-    public HashMap<Long, String> getTmdbImages(@RequestParam(value="ids") List<Long> movIds) {
-        HashMap<Long, String> backdrops=new HashMap<>();
+    public HashMap<Integer, String> getTmdbImages(@RequestParam(value="ids") List<Integer> movIds) {
+        HashMap<Integer, String> backdrops=new HashMap<>();
         log.info("Requesting backdrops...");
-        for(Long movId : movIds) {
+        for(Integer movId : movIds) {
             //log.info("Mov: "+movId);
             backdrops.put(movId, movieService.getBackdrop(movId));
         }
@@ -134,7 +134,7 @@ public class MovieController {
     ResponseEntity<?> createMovie(@RequestBody Movie movie) throws URISyntaxException {
         try {
             Movie result=movieService.saveMovie(movie);
-            return ResponseEntity.created(new URI("/api/movie/" + result.getMovId()))
+            return ResponseEntity.created(new URI("/api/movie/" + result.getId()))
                     .body(result);
         }catch(Exception e){
             e.getMessage();

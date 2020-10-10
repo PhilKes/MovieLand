@@ -13,17 +13,17 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ReservationRepository extends CrudRepository<Reservation,Long> {
+public interface ReservationRepository extends CrudRepository<Reservation,Integer> {
 
-    Optional<Reservation> findByResIdAndUserId(long resId, long userId);
-    List<Reservation> findAllByShowId(long showId);
+    Optional<Reservation> findByIdAndUserId(int resId, long userId);
+    List<Reservation> findAllByShowId(int showId);
     List<Reservation> findAll();
 
     List<Reservation> findAllByUserId(long userId);
 
-    @Query("SELECT r FROM  Reservation r,MovieShow ms WHERE r.userId=:userId AND r.showId=ms.showId " +
+    @Query("SELECT r FROM  Reservation r,MovieShow ms WHERE r.id=:userId AND r.id=ms.id " +
             "AND ms.date >= :currDate")
     List<Reservation> findFutureAllByUserId(@Param("userId") long userId, @Param("currDate") Date date);
 
-    Long deleteAllByShowIdIn(List<Long> showIds);
+    Long deleteAllByIdIn(List<Integer> showIds);
 }

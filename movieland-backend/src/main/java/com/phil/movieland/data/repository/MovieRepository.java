@@ -20,6 +20,6 @@ public interface MovieRepository extends PagingAndSortingRepository<Movie, Long>
 
     Slice<Movie> findAllByNameContainsOrderByName(String queryName, Pageable pageable);
 
-    List<Movie> findAllByMovIdIn(List<Long> movIds);
+    List<Movie> findAllByIdIn(List<Integer> movIds);
     Optional<Movie> findFirstByTmdbId(Long tmdbId);
 }

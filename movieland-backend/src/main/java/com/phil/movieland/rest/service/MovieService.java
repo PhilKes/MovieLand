@@ -83,7 +83,7 @@ public class MovieService {
         }
         Optional<Movie> duplicate=movieRepository.findFirstByTmdbId(movie.getTmdbId());
         if(duplicate.isPresent()) {
-            if(duplicate.get().getMovId()!=movie.getMovId()) {
+            if(duplicate.get().getId()!=movie.getId()) {
                 log.info(movie.getName() + " already in Database!");
                 throw new Exception(movie.getName()+" is already in the Database!");
             }
@@ -121,9 +121,8 @@ public class MovieService {
 
     }
 
-    public String getBackdrop(Long movId) {
-        String path=tmdbApiService.getBackdrop(movId);
-        ;
+    public String getBackdrop(Integer movId) {
+        String path=tmdbApiService.getBackdrop(movId);;
         return path;
     }
 
@@ -135,8 +134,8 @@ public class MovieService {
         return Optional.of(tmdbApiService.getTrailerURL(movie.get().getTmdbId()));
     }
 
-    public List<Movie> queryMoviesByIds(List<Long> movIds) {
-        return movieRepository.findAllByMovIdIn(movIds);
+    public List<Movie> queryMoviesByIds(List<Integer> movIds) {
+        return movieRepository.findAllByIdIn(movIds);
     }
 
     public void deleteAll() {

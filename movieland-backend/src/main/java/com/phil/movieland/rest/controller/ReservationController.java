@@ -1,6 +1,8 @@
 package com.phil.movieland.rest.controller;
 
+import com.phil.movieland.auth.jwt.entity.User;
 import com.phil.movieland.auth.jwt.entity.UserPrincipal;
+import com.phil.movieland.auth.jwt.entity.UserRepository;
 import com.phil.movieland.auth.jwt.util.CurrentUser;
 import com.phil.movieland.data.entity.Movie;
 import com.phil.movieland.data.entity.MovieShow;
@@ -30,15 +32,17 @@ public class ReservationController {
     private final ReservationService reservationService;
     private final MovieService movieService;
     private final MovieShowService movieShowService;
+    private final UserRepository userRepository;
 
     private Logger log=LoggerFactory.getLogger(ReservationController.class);
 
     @Autowired
     public ReservationController(ReservationService reservationService,
-                                 MovieService movieService, MovieShowService movieShowService) {
+                                 MovieService movieService, MovieShowService movieShowService, UserRepository userRepository) {
         this.reservationService=reservationService;
         this.movieService=movieService;
         this.movieShowService=movieShowService;
+        this.userRepository=userRepository;
     }
 
     @PreAuthorize("hasRole('CASHIER')")
@@ -50,13 +54,13 @@ public class ReservationController {
 
     //TODO Do not expose other reservation to user
     @GetMapping("/shows/{showId}")
-    List<Reservation> getReservationsofShow(@PathVariable Long showId) {
+    List<Reservation> getReservationsofShow(@PathVariable Integer showId) {
         return reservationService.getAllReservationsOfShow(showId);
     }
 
     @PreAuthorize("hasRole('CASHIER')")
     @GetMapping("/{resId}")
-    public ResponseEntity<?> getReservation(@PathVariable(name="resId") Long resId) {
+    public ResponseEntity<?> getReservation(@PathVariable(name="resId") Integer resId) {
         Optional<Reservation> reservation=reservationService.getReservationById(resId);
         if(reservation.isEmpty()) {
             return ResponseEntity.badRequest().body("Reservation not found");
@@ -69,14 +73,18 @@ public class ReservationController {
     public ResponseEntity<?> createReservation(@RequestBody ReservationRequest reservationRequest,
                                                @CurrentUser UserPrincipal currentUser) throws URISyntaxException {
         Reservation reservation=new Reservation();
-        reservation.setShowId(reservationRequest.getShow_id());
-        reservation.setUserId(currentUser.getId());
+        Optional<MovieShow> show=movieShowService.queryShow(reservationRequest.getShow_id());
+        if(show.isEmpty()){
+            return ResponseEntity.badRequest().body("MovieShow not found (id"+reservationRequest.getShow_id());
+        }
+        reservation.setShow(show.get());
+        reservation.setUser(userRepository.getOne(currentUser.getId()));
         Reservation result=reservationService.saveReservation(reservation, reservationRequest.getSeats());
         if(result==null) {
             return ResponseEntity.badRequest()
                     .body("Seats already taken!");
         }
-        return ResponseEntity.created(new URI("/api/reservation/" + result.getResId()))
+        return ResponseEntity.created(new URI("/api/reservation/" + result.getId()))
                 .body(result);
     }
 
@@ -92,11 +100,14 @@ public class ReservationController {
         reservationRequest.setCashierId(cashierUser.getId());
         reservation.get().setValidated(reservationRequest.isValidate());
         reservation.get().setMethod(reservationRequest.getMethod());
-        reservation.get().setCashierId(reservationRequest.getCashierId());
-        log.info("Validating Reservation: " + reservation.get().getResId());
+        User cashier= userRepository.getOne(reservationRequest.getCashierId());
+        if(cashier==null)
+            return ResponseEntity.badRequest().body("Cashier not found (id:"+reservationRequest.getCashierId());
+        reservation.get().setCashier(cashier);
+        log.info("Validating Reservation: " + reservation.get().getId());
         Reservation result=reservationService.updateReservation(reservation.get());
 
-        return ResponseEntity.created(new URI("/api/reservation/" + result.getResId()))
+        return ResponseEntity.created(new URI("/api/reservation/" + result.getId()))
                 .body(result);
     }
 
@@ -132,7 +143,7 @@ public class ReservationController {
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/me/id/{resId}")
     public ResponseEntity<?> getCurrentUserReservationInfo(@CurrentUser UserPrincipal currentUser,
-                                                           @PathVariable(name="resId") Long resId) {
+                                                           @PathVariable(name="resId") Integer resId) {
         //UserSummary userSummary=new UserSummary(currentUser.getId(), currentUser.getUsername(), currentUser.getName());
         Optional<Reservation> res=reservationService.getReservationInfoOfUser(currentUser.getId(), resId);
         if(res.isEmpty()) {
@@ -152,17 +163,17 @@ public class ReservationController {
     private ReservationService.ReservationInfo getReservationInfo(Reservation res) throws Exception {
         ReservationService.ReservationInfo info=new ReservationService.ReservationInfo();
         info.setReservation(res);
-        Optional<MovieShow> show=movieShowService.queryShow(res.getShowId());
+        Optional<MovieShow> show=movieShowService.queryShow(res.getId());
         if(show.isEmpty()) {
             throw new Exception("Show of Reservation not found");
         }
         info.setMovieShow(show.get());
-        Optional<Movie> movie=movieService.queryMovie(show.get().getMovId());
+        Optional<Movie> movie=movieService.queryMovie(show.get().getId());
         if(movie.isEmpty()) {
             throw new Exception("Movie of Show not found");
         }
         info.setMovie(movie.get());
-        info.setQRCodeURL("https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + res.getResId());
+        info.setQRCodeURL("https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + res.getId());
         return info;
     }
 

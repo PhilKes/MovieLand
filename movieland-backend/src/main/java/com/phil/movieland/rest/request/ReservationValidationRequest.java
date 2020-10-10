@@ -7,16 +7,16 @@ public class ReservationValidationRequest {
         PAYPAL
     }
 
-    private long resId;
+    private int resId;
     private boolean validate;
     private PaymentMethod method;
     private Long cashierId;
 
-    public long getResId() {
+    public int getResId() {
         return resId;
     }
 
-    public void setResId(long resId) {
+    public void setResId(int resId) {
         this.resId=resId;
     }
 

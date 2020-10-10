@@ -1,60 +1,28 @@
 package com.phil.movieland.data.entity;
 
+import com.phil.movieland.auth.jwt.entity.User;
 import com.phil.movieland.rest.request.ReservationValidationRequest;
 
 import javax.persistence.*;
 
 
 @Entity
-@Table(name="RESERVATION")
-public class Reservation {
+public class Reservation extends EntityWithId{
 
-    @Id
-    @Column(name="RESERVATION_ID")
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    private long resId;
+    @ManyToOne
+    private MovieShow show;
 
-    @Column(name="SHOW_ID")
-    private long showId;
+    @ManyToOne
+    private User user;
 
-    @Column(name="USER_ID")
-    private long userId;
-
-    @Column(name="VALIDATED")
     private boolean validated=false;
 
-    @Column(name="TOTAL_SUM")
     private Double totalSum;
 
-    @Column(name="METHOD")
     private ReservationValidationRequest.PaymentMethod method=ReservationValidationRequest.PaymentMethod.CASH;
 
-    @Column(name="CASHIER_ID")
-    private Long cashierId;
-
-    public long getResId() {
-        return resId;
-    }
-
-    public void setResId(long resId) {
-        this.resId=resId;
-    }
-
-    public long getShowId() {
-        return showId;
-    }
-
-    public void setShowId(long showId) {
-        this.showId=showId;
-    }
-
-    public long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(long userId) {
-        this.userId=userId;
-    }
+    @ManyToOne
+    private User cashier;
 
     public boolean isValidated() {
         return validated;
@@ -80,11 +48,27 @@ public class Reservation {
         this.method=method;
     }
 
-    public Long getCashierId() {
-        return cashierId;
+    public MovieShow getShow() {
+        return show;
     }
 
-    public void setCashierId(Long cashierId) {
-        this.cashierId=cashierId;
+    public void setShow(MovieShow show) {
+        this.show=show;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user=user;
+    }
+
+    public User getCashier() {
+        return cashier;
+    }
+
+    public void setCashier(User cashier) {
+        this.cashier=cashier;
     }
 }

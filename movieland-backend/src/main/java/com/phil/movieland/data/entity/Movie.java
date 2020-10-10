@@ -4,35 +4,26 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.phil.movieland.utils.DateUtils;
 import com.phil.movieland.utils.TmdbApiService;
 import info.movito.themoviedbapi.model.MovieDb;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name="MOVIE")
-public class Movie {
+public class Movie extends EntityWithId{
 
-    @Id
-    @Column(name="MOVIE_ID")
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    private long movId;
-
-    @Column(name="NAME")
     private String name;
 
-    @Column(name="RELEASE_DATE")
     private Date date;
 
-    @Column(name="DESCRIPTION")
     private String description;
 
-    @Column(name="POSTER_URL", nullable=true)
+    @Nullable
     private String posterUrl;
 
-    @Column(name="LENGTH", nullable=true)
+    @Nullable
     private Long length;
 
-    @Column(name="TMDB_ID")
     private Long tmdbId;
 
     //Additional info, actors,... from TMDB
@@ -50,14 +41,6 @@ public class Movie {
 
     public void setTmdbId(Long tmdbId) {
         this.tmdbId=tmdbId;
-    }
-
-    public long getMovId() {
-        return movId;
-    }
-
-    public void setMovId(long movId) {
-        this.movId=movId;
     }
 
     public String getName() {
