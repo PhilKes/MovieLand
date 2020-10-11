@@ -105,7 +105,7 @@
       initMovieRows() {
 
         this.movies.forEach((movie, idx) => {
-          movie.movId = idx;
+          movie.id = idx;
           movie.selectable=true;
           if (this.existingMovies.some(existingMovie => existingMovie.name === movie.name)) {
             console.log("duplicate", movie.name)

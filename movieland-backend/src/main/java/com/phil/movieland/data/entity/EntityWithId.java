@@ -9,6 +9,7 @@ public class EntityWithId {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
+/*    @Access(AccessType.PROPERTY)*/
     private Integer id;
 
     public EntityWithId() {

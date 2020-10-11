@@ -41,7 +41,7 @@ public class MovieShowService {
     public List<MovieShow> getShowsForMovieDate(Integer movId, String dateString) {
         Date date=DateUtils.createDateFromDateString(dateString);
         Date[] betweenDates=getBetweenDates(date);
-        List<MovieShow> shows=movieShowRepository.findAllByIdAndDateBetweenOrderByDate(movId, betweenDates[0], betweenDates[1]);
+        List<MovieShow> shows=movieShowRepository.findAllByMovieIdAndDateBetweenOrderByDate(movId, betweenDates[0], betweenDates[1]);
         for(MovieShow show : shows) {
             log.info("Show at: " + show.getDate());
         }
@@ -59,7 +59,7 @@ public class MovieShowService {
         movieShowRepository.save(show);
     }
 
-    public void deleteMovieShow(Long showid) {
+    public void deleteMovieShow(Integer showid) {
         log.info("Deleting: " + showid);
         movieShowRepository.deleteById(showid);
     }
@@ -103,7 +103,7 @@ public class MovieShowService {
         return show;
     }
 
-    public void deleteById(Long id) {
+    public void deleteById(Integer id) {
         movieShowRepository.deleteById(id);
     }
 
@@ -131,7 +131,7 @@ public class MovieShowService {
         in7Days.set(Calendar.MINUTE, 59);
         in7Days.set(Calendar.SECOND, 59);
         in7Days.add(Calendar.DATE, 7);
-        return movieShowRepository.findAllByIdAndDateBetweenOrderByDate(movie.getId(), date, in7Days.getTime());
+        return movieShowRepository.findAllByMovieIdAndDateBetweenOrderByDate(movie.getId(), date, in7Days.getTime());
     }
 
     public void saveShows(List<MovieShow> movieShows) {

@@ -1,6 +1,7 @@
 package com.phil.movieland.rest.service;
 
 import com.phil.movieland.data.entity.Movie;
+import com.phil.movieland.data.entity.MovieShow;
 import com.phil.movieland.data.repository.MovieRepository;
 import com.phil.movieland.utils.TmdbApiService;
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -53,8 +55,9 @@ public class MovieService {
         return movies;
     }
 
-    public Optional<Movie> queryMovie(long movieId) {
+    public Optional<Movie> queryMovie(int movieId) {
         Optional<Movie> movie=movieRepository.findById(movieId);
+        movie.get().getId();
         if(movie.isPresent()) {
             setTmdbData(movie.get(),true);
         }
@@ -92,7 +95,7 @@ public class MovieService {
         return movieRepository.save(movie);
     }
 
-    public void deleteById(long movieId) {
+    public void deleteById(int movieId) {
         movieRepository.deleteById(movieId);
     }
 
@@ -126,7 +129,7 @@ public class MovieService {
         return path;
     }
 
-    public Optional<String> getTrailer(Long movId) {
+    public Optional<String> getTrailer(Integer movId) {
         Optional<Movie> movie=movieRepository.findById(movId);
         if(movie.isEmpty()) {
             return Optional.empty();
@@ -140,5 +143,14 @@ public class MovieService {
 
     public void deleteAll() {
         movieRepository.deleteAll();
+    }
+
+    public HashMap<Integer, Movie> getMoviesFromShows(List<MovieShow> shows) {
+        HashMap<Integer, Movie> movies=new HashMap<>();
+        shows.forEach(show-> movies.put(show.getMovie().getId(),show.getMovie()));
+     /*   shows.stream().mapToInt(show-> show.getMovie().getId()).distinct().forEach(
+                mov -> movieService.queryMovie(mov).ifPresent(movie -> movies.put(movie.getId(), movie))
+        );*/
+        return movies;
     }
 }

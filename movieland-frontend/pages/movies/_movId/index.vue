@@ -21,7 +21,6 @@
       loading: true
     }),
     async fetch() {
-      console.log(this.$route.params.movId, this.$route.params.showId)
       this.movie = await this.$repos.movies.id(this.$route.params.movId);
       this.shows = await this.$repos.shows.showsOfMovieWeek(this.$route.params.movId);
       this.shows.forEach(show => show.date = new Date(show.date));

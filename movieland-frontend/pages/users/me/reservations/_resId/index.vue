@@ -22,7 +22,7 @@
             <v-card-text>
               Date: {{resInfo.movieShow.date | formatDateTime}}<br/>
               Total Sum: {{resInfo.reservation.totalSum}} $
-              Reservation Nr: {{resInfo.reservation.resId}}
+              Reservation Nr: {{resInfo.reservation.id}}
             </v-card-text>
             <v-card-actions>
               <v-btn block v-if="resInfo.reservation.validated===false" color="primary" @click="showValidateInfo">
@@ -35,7 +35,7 @@
           <v-col>
    <!--         <img :src="resInfo.qrcodeURL" class="hover-pointer" @click="openQRCode"/>-->
             <span @click="openQRCode" >
-                <qrcode-vue :value="resInfo.reservation.resId+''" size="150"
+                <qrcode-vue :value="resInfo.reservation.id+''" size="150"
                             class="hover-pointer" level="H" />
             </span>
 
@@ -71,7 +71,7 @@
     },
     methods: {
       openQRCode() {
-        this.$dialog.show(QrCodeView, {qrcode: this.resInfo.reservation.resId+''});
+        this.$dialog.show(QrCodeView, {qrcode: this.resInfo.reservation.id+''});
       },
       showValidateInfo() {
         this.$dialog.confirm({

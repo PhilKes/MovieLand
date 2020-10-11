@@ -27,7 +27,7 @@
             color: 'success',
             text: 'To my Reservation',
             handle: () => {
-              this.$router.push('/users/me/reservations/' + this.reservation.resId)
+              this.$router.push('/users/me/reservations/' + this.reservation.id)
             }
           }
         }

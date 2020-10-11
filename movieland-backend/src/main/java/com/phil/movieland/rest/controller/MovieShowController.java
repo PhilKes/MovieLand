@@ -1,6 +1,5 @@
 package com.phil.movieland.rest.controller;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.phil.movieland.data.entity.Movie;
 import com.phil.movieland.data.entity.MovieShow;
 import com.phil.movieland.rest.service.MovieService;
@@ -19,6 +18,7 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -49,41 +49,42 @@ public class MovieShowController {
     }
 
     @GetMapping("/infos")
-    public Collection<MovieShowInfo> getMoviesShowsInfo(
+    public Collection<MovieDetails> getMoviesShowsInfo(
             @RequestParam(value="date", required=true) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) Date date) {
         log.info("Query for " + date);
         List<MovieShow> shows=movieShowService.getShowsForDate(date,false);
-        Map<Integer,List<MovieShow>> showMap=shows.stream().collect(groupingBy(MovieShow::getId));
-        List<Movie> movies= movieService.queryMoviesByIds(new ArrayList<>(showMap.keySet()));
-        List<MovieShowInfo> showInfos=new ArrayList<>();
-        movies.forEach(movie->{
-            MovieShowInfo info= new MovieShowInfo()
-                    .setMovId(movie.getId())
+        Map<Integer,List<MovieShow>> showMap=shows.stream().collect(groupingBy(show->show.getMovie().getId()));
+        //List<Movie> movies= movieService.getMoviesFromShows(new ArrayList<>(showMap.keySet()));
+        List<MovieDetails> showInfos=new ArrayList<>();
+        showMap.keySet().forEach(movId->{
+            Movie movie= showMap.get(movId).get(0).getMovie();
+            MovieDetails info= new MovieDetails()
+                    .setMovId(movId)
                     .setName(movie.getName())
                     .setPosterUrl(movie.getPosterUrl())
                     .setDate(movie.getDate())
-                    .setShows(showMap.get(movie.getId()));
+                    .setShows(showMap.get(movId));
             showInfos.add(info);
         });
         return showInfos;
     }
-    public class MovieShowInfo{
+    public class MovieDetails {
         Integer movId;
         String name;
         @DateTimeFormat(iso= DateTimeFormat.ISO.DATE_TIME)
         Date date;
         String posterUrl;
 
-        List<MovieShow> shows;
+        List<MovieShow.MovieShowInfo> shows;
 
-        public MovieShowInfo() {
+        public MovieDetails() {
         }
 
         public Integer getMovId() {
             return movId;
         }
 
-        public MovieShowInfo setMovId(Integer movId) {
+        public MovieDetails setMovId(Integer movId) {
             this.movId=movId;
             return this;
         }
@@ -92,7 +93,7 @@ public class MovieShowController {
             return name;
         }
 
-        public MovieShowInfo setName(String name) {
+        public MovieDetails setName(String name) {
             this.name=name;
             return this;
 
@@ -102,7 +103,7 @@ public class MovieShowController {
             return date;
         }
 
-        public MovieShowInfo setDate(Date date) {
+        public MovieDetails setDate(Date date) {
             this.date=date;
             return this;
 
@@ -112,25 +113,25 @@ public class MovieShowController {
             return posterUrl;
         }
 
-        public MovieShowInfo setPosterUrl(String posterUrl) {
+        public MovieDetails setPosterUrl(String posterUrl) {
             this.posterUrl=posterUrl;
             return this;
 
         }
 
-        public List<MovieShow> getShows() {
+        public List<MovieShow.MovieShowInfo> getShows() {
             return shows;
         }
 
-        public MovieShowInfo setShows(List<MovieShow> shows) {
-            this.shows=shows;
+        public MovieDetails setShows(List<MovieShow> shows) {
+            this.shows=shows.stream().map(MovieShow::getInfo).collect(Collectors.toList());
             return this;
         }
     }
 
 
     @GetMapping("/movies/{id}")
-    public ResponseEntity<Collection<MovieShow>> getMovieShows(@PathVariable Long id,
+    public ResponseEntity<Collection<MovieShow>> getMovieShows(@PathVariable Integer id,
                                                                @RequestParam(value="date", required=false) String dateString) {
         List<MovieShow> shows=null;
         Date date=dateString==null ? new Date() : DateUtils.createDateFromDateString(dateString);
@@ -176,7 +177,7 @@ public class MovieShowController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteShow(@PathVariable Long id) {
+    public ResponseEntity<?> deleteShow(@PathVariable Integer id) {
         movieShowService.deleteById(id);
         return ResponseEntity.ok().build();
     }

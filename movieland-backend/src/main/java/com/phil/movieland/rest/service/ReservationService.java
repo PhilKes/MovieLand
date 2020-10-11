@@ -36,9 +36,9 @@ public class ReservationService {
     public Reservation saveReservation(Reservation reservation, List<Seat> seats) {
         /** Check if seats are already taken*/
         //TOD Use seatRepository.findAllOfShow
-        List<Reservation> reservations=reservationRepository.findAllByShowId(reservation.getId());
+        List<Reservation> reservations=reservationRepository.findAllByShowId(reservation.getShow().getId());
         for(Reservation res : reservations) {
-            List<Seat> seatList=seatRepository.findAllById(res.getId());
+            List<Seat> seatList=seatRepository.findAllByReservationId(res.getId());
             for(Seat reserved : seatList) {
                 if(seats.stream().anyMatch(selected -> reserved.getNumber()==selected.getNumber())) {
                     return null;
@@ -67,8 +67,8 @@ public class ReservationService {
         return reservationRepository.findAllByShowId(showId);
     }
 
-    public List<Seat> getAllSeatsOfReservation(Long resId) {
-        return seatRepository.findAllById(resId);
+    public List<Seat> getAllSeatsOfReservation(Integer resId) {
+        return seatRepository.findAllByReservationId(resId);
     }
 
     public List<Seat> getAllSeatsOfShow(Integer showId) {

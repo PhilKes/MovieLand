@@ -37,7 +37,7 @@
                 <v-btn @click="findShows" color="success" class="mr-2">
                   <v-icon>fas fa-search</v-icon>
                 </v-btn>
-                <v-btn @click="selectToday" color="primary">
+                <v-btn @click="selectToday" color="secondary">
                   Today
                 </v-btn>
 
@@ -70,7 +70,7 @@
                   <tr v-for="(show,idx) of item.shows" >
                     <td style="border-bottom: none!important;">
                       <v-row dense justify="start" align="start">
-                        <div class="show-item" @click="$router.push(`/movies/${item.movId}/shows/${show.showId}`)">
+                        <div class="show-item" @click="$router.push(`/movies/${item.id}/shows/${show.id}`)">
                           <p>
                             {{show.date | formatTime}}
                           </p>
@@ -102,7 +102,7 @@
     name: "AdminShows",
     data() {
       return {
-        dates: moment().format('YYYY-DD-MM'),
+        dates: moment().format('YYYY-MM-DD'),
         movieInfos: [],
         headers: [
           {
@@ -151,7 +151,7 @@
         this.loading = false;
       },
       selectToday(){
-        this.dates=moment().format('YYYY-DD-MM');
+        this.dates=moment().format('YYYY-MM-DD');
         this.findShows();
       }
     },

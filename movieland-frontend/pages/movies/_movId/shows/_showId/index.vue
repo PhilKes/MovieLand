@@ -39,8 +39,8 @@
     async fetch() {
       this.show = await this.$repos.shows.id(this.$route.params.showId);
       this.show.date = new Date(this.show.date);
-      this.movie = await this.$repos.movies.id(this.show.movId)
-      this.takenSeats = await this.$repos.seats.allOfShow(this.show.showId);
+      this.movie = await this.$repos.movies.id(this.show.movie.id)
+      this.takenSeats = await this.$repos.seats.allOfShow(this.show.id);
       this.loading = false;
     },
     methods: {
@@ -56,15 +56,16 @@
         this.booking = true;
         console.log("Reservation", this.$auth.user, selection)
         let request = {
-          show_id: this.show.showId,
+          show_id: this.show.id,
           seats: selection.map(seat => ({
             number: seat.rowIdx * 16 + seat.colIdx,
             type: 'ADULT'
           }))
         }
         return this.$repos.reservations.add(request).then(async reservation => {
-          this.takenSeats = await this.$repos.seats.allOfShow(this.show.showId);
+          this.takenSeats = await this.$repos.seats.allOfShow(this.show.id);
           this.booking = false;
+          console.log("reservation",reservation)
           this.showReservationSuccess(reservation);
           return reservation;
         })

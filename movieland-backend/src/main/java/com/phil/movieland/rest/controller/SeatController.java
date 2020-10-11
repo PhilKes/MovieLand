@@ -21,7 +21,7 @@ public class SeatController {
     }
 
     @GetMapping("/reservations/{resId}")
-    public List<Seat> getSeatsOfReservation(@PathVariable Long resId) {
+    public List<Seat> getSeatsOfReservation(@PathVariable Integer resId) {
         return reservationService.getAllSeatsOfReservation(resId);
     }
 

@@ -61,7 +61,7 @@
     },
     methods: {
       goToShow(show) {
-        this.$router.push(`/movies/${this.movId}/shows/${show.showId}`);
+        this.$router.push(`/movies/${this.movId}/shows/${show.id}`);
       }
     }
   }

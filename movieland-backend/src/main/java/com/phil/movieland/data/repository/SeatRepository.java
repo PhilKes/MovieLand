@@ -13,8 +13,8 @@ import java.util.Date;
 import java.util.List;
 
 @Repository
-public interface SeatRepository extends CrudRepository<Seat, Long> {
-    List<Seat> findAllById(long resId);
+public interface SeatRepository extends CrudRepository<Seat, Integer> {
+    List<Seat> findAllByReservationId(int resId);
 
     void deleteAllById(int resId);
 

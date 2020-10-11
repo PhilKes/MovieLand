@@ -78,7 +78,7 @@ public class ReservationController {
             return ResponseEntity.badRequest().body("MovieShow not found (id"+reservationRequest.getShow_id());
         }
         reservation.setShow(show.get());
-        reservation.setUser(userRepository.getOne(currentUser.getId()));
+        reservation.setUser(userRepository.findById(currentUser.getId()).get());
         Reservation result=reservationService.saveReservation(reservation, reservationRequest.getSeats());
         if(result==null) {
             return ResponseEntity.badRequest()
@@ -163,12 +163,12 @@ public class ReservationController {
     private ReservationService.ReservationInfo getReservationInfo(Reservation res) throws Exception {
         ReservationService.ReservationInfo info=new ReservationService.ReservationInfo();
         info.setReservation(res);
-        Optional<MovieShow> show=movieShowService.queryShow(res.getId());
+        Optional<MovieShow> show=movieShowService.queryShow(res.getShow().getId());
         if(show.isEmpty()) {
             throw new Exception("Show of Reservation not found");
         }
         info.setMovieShow(show.get());
-        Optional<Movie> movie=movieService.queryMovie(show.get().getId());
+        Optional<Movie> movie=movieService.queryMovie(show.get().getMovie().getId());
         if(movie.isEmpty()) {
             throw new Exception("Movie of Show not found");
         }

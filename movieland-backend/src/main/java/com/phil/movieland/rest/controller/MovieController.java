@@ -116,14 +116,14 @@ public class MovieController {
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<Movie> getMovie(@PathVariable Long id) {
+    ResponseEntity<Movie> getMovie(@PathVariable Integer id) {
         Optional<Movie> movie = movieService.queryMovie(id);
         return movie.map(response -> ResponseEntity.ok().body(response))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @GetMapping("/trailer/{movId}")
-    ResponseEntity<String> getMovieTrailer(@PathVariable Long movId) {
+    ResponseEntity<String> getMovieTrailer(@PathVariable Integer movId) {
         Optional<String> trailer=movieService.getTrailer(movId);
         return trailer.map(response -> ResponseEntity.ok().body(response))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -158,7 +158,7 @@ public class MovieController {
     //TODO PREAUTHORIZATION??
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteMovie(@PathVariable Long id) {
+    public ResponseEntity<?> deleteMovie(@PathVariable Integer id) {
         movieService.deleteById(id);
         return ResponseEntity.ok().build();
     }

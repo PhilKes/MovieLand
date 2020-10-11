@@ -13,12 +13,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface MovieShowRepository extends CrudRepository<MovieShow,Long> {
+public interface MovieShowRepository extends CrudRepository<MovieShow,Integer> {
     Optional<MovieShow> findById(int movid);
     List<MovieShow> findAllByOrderByDate();
     List<MovieShow> findAllById(int movid);
 
-    List<MovieShow> findAllByIdAndDateBetweenOrderByDate(int movid, Date dateStart, Date dateEnd);
+    List<MovieShow> findAllByMovieIdAndDateBetweenOrderByDate(int movid, Date dateStart, Date dateEnd);
     List<MovieShow> findAllByDateBetween(Date dateStart,Date dateEnd);
 
     Long deleteAllByIdIn(List<Integer> showIds);

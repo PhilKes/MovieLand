@@ -4,7 +4,7 @@
     <v-list-item :class="{'elevation-2':!transparent, 'rounded-lg':true,
      'card-wrapper':!noLink,'card-wrapper-noHover':noLink===true,
      'pa-0':true,'m-0':true}"
-                 three-line :to="noLink? null : '/movies/'+movie.movId">
+                 three-line :to="noLink? null : '/movies/'+movie.id">
       <v-list-item-avatar rounded="0"
                           height="370" :width="240"
                           max-height="370" max-width="240"
@@ -15,7 +15,7 @@
         <v-list-item-title class="movie-title">{{movie.name}}</v-list-item-title>
         <v-list-item-subtitle class="post-description">{{movie.description}}</v-list-item-subtitle>
         <v-row justify="start">
-          <shows-view v-if="showView" :loading="loading" :shows="shows" :mov-id="movie.movId"/>
+          <shows-view v-if="showView" :loading="loading" :shows="shows" :mov-id="movie.id"/>
         </v-row>
         <v-list-item-title class="post-author">
           <v-row dense no-gutters justify="space-between">
@@ -24,7 +24,7 @@
             </v-col>
             <v-spacer/>
             <v-col>
-              <v-btn icon v-on:click.prevent="openTrailer(movie.movId)">
+              <v-btn icon v-on:click.prevent="openTrailer(movie.id)">
                 <v-icon>fas fa-video</v-icon>
               </v-btn>
             </v-col>
@@ -49,7 +49,7 @@
     components: {ShowsView},
     props: {
       movie: {
-        movId: Number,
+        id: Number,
         name: String,
         posterUrl: String,
         director: String,

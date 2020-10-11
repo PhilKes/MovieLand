@@ -11,7 +11,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface MovieRepository extends PagingAndSortingRepository<Movie, Long> {
+public interface MovieRepository extends PagingAndSortingRepository<Movie, Integer> {
+    Optional<Movie> findById(int movid);
     List<Movie> findAllByOrderByName();
 
     Slice<Movie> findAllByOrderByName(Pageable pageable);

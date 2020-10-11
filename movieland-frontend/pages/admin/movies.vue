@@ -118,7 +118,7 @@
         let del = await this.$dialog.showAndWait(MovieDelete, {title: movie.name})
         if (del === true) {
           this.loading = true;
-          this.$repos.movies.remove(movie.movId).then(resp => {
+          this.$repos.movies.remove(movie.id).then(resp => {
             this.movies.splice(movie.idx, 1);
             Utils.initIndex(this.movies)
             this.$dialog.message.success('Movies succesfully removed!',
@@ -135,7 +135,7 @@
           this.loading = true;
           let promises = [];
           this.selected.forEach(delMovie => {
-            promises.push(this.$repos.movies.remove(delMovie.movId).then(resp => {
+            promises.push(this.$repos.movies.remove(delMovie.id).then(resp => {
               return delMovie.idx;
             }));
           })

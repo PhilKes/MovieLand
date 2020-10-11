@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Transient;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -23,6 +24,7 @@ import java.util.stream.IntStream;
 import static java.util.stream.Collectors.toMap;
 
 @Service
+@Transactional
 public class StatisticsService {
 
     private final MovieShowService movieShowService;
@@ -87,7 +89,7 @@ public class StatisticsService {
                             Calendar showTime=Calendar.getInstance();
                             showTime.setTime(countDate.getTime());
                             MovieShow movieShow=new MovieShow();
-                            movieShow.setId(movie.getId());
+                            movieShow.setMovie(movie);
                             int hour=-1;
                             while(true) {
                                 /** Between 11-23 h*/
@@ -212,7 +214,6 @@ public class StatisticsService {
                 }))
                 .limit(moviesPerDay)
                 .collect(Collectors.toList());
-        ;
 
         while(countDate.getTime().before(until)) {
             /** For each movie generate shows every day */
@@ -226,7 +227,7 @@ public class StatisticsService {
                     Calendar showTime=Calendar.getInstance();
                     showTime.setTime(countDate.getTime());
                     MovieShow movieShow=new MovieShow();
-                    movieShow.setId(movie.getId());
+                    movieShow.setMovie(movie);
                     int hour=-1;
                     while(true) {
                         /** Between 11-23 h*/
@@ -380,8 +381,8 @@ public class StatisticsService {
             countDate.add(Calendar.DATE, 1);
         }
 
-        LinkedHashMap<Long, MovieStats> movieGrossing=new LinkedHashMap<>();
-        HashMap<Integer, Movie> movies=getMoviesFromShows(shows);
+        LinkedHashMap<Integer, MovieStats> movieGrossing=new LinkedHashMap<>();
+        HashMap<Integer, Movie> movies=movieService.getMoviesFromShows(shows);
         amtShows=shows.size();
         amtMovies=movies.size();
         for(MovieShow show : shows) {
@@ -411,7 +412,7 @@ public class StatisticsService {
             }
             double seatsIncome=seats.stream().mapToDouble(seat -> Seat.getPrice(seat.getType())).sum();
             income+=seatsIncome;
-            long movId=show.getId();
+            int movId=show.getMovie().getId();
             /** Update Movie income stats*/
             if(!movieGrossing.containsKey(movId)) {
                 movieGrossing.put(movId, new MovieStats(movId,movies.get(movId).getPosterUrl(),seatsIncome,seats.size()));
@@ -438,21 +439,13 @@ public class StatisticsService {
         return seatRepository.findDailyStatisticsBetweenDate(from,until);
     }
 
-    private HashMap<Integer, Movie> getMoviesFromShows(List<MovieShow> shows) {
-        HashMap<Integer, Movie> movies=new HashMap<>();
-        shows.stream().mapToLong(EntityWithId::getId).distinct().forEach(
-                mov -> movieService.queryMovie(mov).ifPresent(movie -> movies.put(movie.getId(), movie))
-        );
-        return movies;
-    }
-
     public static class Statistics {
         private long amtShows, amtMovies, amtSeats;
         private long amtWatchedMins;
         private long income;
         private HashMap<String, Integer> dailyStats;
         private Map<Seat.Seat_Type, Integer> seatsDistribution;
-        private LinkedHashMap<Long, MovieStats> movieStats;
+        private LinkedHashMap<Integer, MovieStats> movieStats;
 
 
         public Statistics() {
@@ -492,13 +485,13 @@ public class StatisticsService {
 
         @Transient
         @JsonIgnore
-        public Map<Long, MovieStats> getMovieStats() {
+        public Map<Integer, MovieStats> getMovieStats() {
             return movieStats;
         }
 
         /** Sorts and sets moveStats Map*/
-        public void setMovieStats(LinkedHashMap<Long, MovieStats> movieStats) {
-            LinkedHashMap<Long, MovieStats> sorted =  movieStats.entrySet().stream()
+        public void setMovieStats(LinkedHashMap<Integer, MovieStats> movieStats) {
+            LinkedHashMap<Integer, MovieStats> sorted =  movieStats.entrySet().stream()
                     .sorted((e1,e2)->Double.compare(e1.getValue().getGrossing(),e2.getValue().getGrossing())*-1)
                     .collect(toMap(
                             Map.Entry::getKey,
